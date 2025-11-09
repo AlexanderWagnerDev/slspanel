@@ -95,3 +95,6 @@ msgstr "Player Key"
 
 msgid "Description"
 msgstr "Description"
+
+msgid "Copied"
+msgstr "Copied"
