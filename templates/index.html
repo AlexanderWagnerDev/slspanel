@@ -33,21 +33,30 @@
                 <ul>
                     <li>
                         {% trans "SRT Publish URL" %}:
-                        <input type="text" readonly
-                            value="srt://{{ sls_domain_ip }}:{{ srt_publish_port }}?streamid={{ stream.publisher }}"
-                            onclick="this.select();document.execCommand('copy');" title="{% trans 'Click to copy' %}">
+                        <span class="copy-text" tabindex="0" role="button" aria-label="{% trans 'Copy SRT Publish URL' %}"
+                              data-url="srt://{{ sls_domain_ip }}:{{ srt_publish_port }}?streamid={{ stream.publisher }}"
+                              onclick="copyToClipboard(this)" onkeyup="if(event.key==='Enter') copyToClipboard(this)">
+                            srt://{{ sls_domain_ip }}:{{ srt_publish_port }}?streamid={{ stream.publisher }}
+                        </span>
+                        <span class="copy-feedback" aria-live="polite" aria-atomic="true"></span>
                     </li>
                     <li>
                         {% trans "SRTLA Publish URL" %}:
-                        <input type="text" readonly
-                            value="srtla://{{ sls_domain_ip }}:{{ srtla_publish_port }}?streamid={{ stream.publisher }}"
-                            onclick="this.select();document.execCommand('copy');" title="{% trans 'Click to copy' %}">
+                        <span class="copy-text" tabindex="0" role="button" aria-label="{% trans 'Copy SRTLA Publish URL' %}"
+                              data-url="srtla://{{ sls_domain_ip }}:{{ srtla_publish_port }}?streamid={{ stream.publisher }}"
+                              onclick="copyToClipboard(this)" onkeyup="if(event.key==='Enter') copyToClipboard(this)">
+                            srtla://{{ sls_domain_ip }}:{{ srtla_publish_port }}?streamid={{ stream.publisher }}
+                        </span>
+                        <span class="copy-feedback" aria-live="polite" aria-atomic="true"></span>
                     </li>
                     <li>
                         {% trans "SRT Player URL" %}:
-                        <input type="text" readonly
-                            value="srt://{{ sls_domain_ip }}:{{ srt_player_port }}?streamid={{ stream.publisher }}"
-                            onclick="this.select();document.execCommand('copy');" title="{% trans 'Click to copy' %}">
+                        <span class="copy-text" tabindex="0" role="button" aria-label="{% trans 'Copy SRT Player URL' %}"
+                              data-url="srt://{{ sls_domain_ip }}:{{ srt_player_port }}?streamid={{ stream.publisher }}"
+                              onclick="copyToClipboard(this)" onkeyup="if(event.key==='Enter') copyToClipboard(this)">
+                            srt://{{ sls_domain_ip }}:{{ srt_player_port }}?streamid={{ stream.publisher }}
+                        </span>
+                        <span class="copy-feedback" aria-live="polite" aria-atomic="true"></span>
                     </li>
                 </ul>
 
@@ -65,17 +74,23 @@
                         </div>
                         <div class="mt-2">
                             {% trans "Player URL" %}:
-                            <input type="text" readonly
-                                value="srt://{{ sls_domain_ip }}:{{ srt_player_port }}?streamid={{ player }}"
-                                onclick="this.select();document.execCommand('copy');" title="{% trans 'Click to copy' %}"><br>
+                            <span class="copy-text" tabindex="0" role="button" aria-label="{% trans 'Copy Player URL' %}"
+                                  data-url="srt://{{ sls_domain_ip }}:{{ srt_player_port }}?streamid={{ player }}"
+                                  onclick="copyToClipboard(this)" onkeyup="if(event.key==='Enter') copyToClipboard(this)">
+                                srt://{{ sls_domain_ip }}:{{ srt_player_port }}?streamid={{ player }}
+                            </span><br>
                             {% trans "Stats URL" %}:
-                            <input type="text" readonly
-                                value="http://{{ sls_domain_ip }}:{{ sls_stats_port }}/stats/{{ player }}"
-                                onclick="this.select();document.execCommand('copy');" title="{% trans 'Click to copy' %}">
+                            <span class="copy-text" tabindex="0" role="button" aria-label="{% trans 'Copy Stats URL' %}"
+                                  data-url="http://{{ sls_domain_ip }}:{{ sls_stats_port }}/stats/{{ player }}"
+                                  onclick="copyToClipboard(this)" onkeyup="if(event.key==='Enter') copyToClipboard(this)">
+                                http://{{ sls_domain_ip }}:{{ sls_stats_port }}/stats/{{ player }}
+                            </span><br>
                             {% trans "Stats Legacy URL" %}:
-                            <input type="text" readonly
-                                value="http://{{ sls_domain_ip }}:{{ sls_stats_port }}/stats/{{ player }}?legacy=1"
-                                onclick="this.select();document.execCommand('copy');" title="{% trans 'Click to copy' %}">
+                            <span class="copy-text" tabindex="0" role="button" aria-label="{% trans 'Copy Stats Legacy URL' %}"
+                                  data-url="http://{{ sls_domain_ip }}:{{ sls_stats_port }}/stats/{{ player }}?legacy=1"
+                                  onclick="copyToClipboard(this)" onkeyup="if(event.key==='Enter') copyToClipboard(this)">
+                                http://{{ sls_domain_ip }}:{{ sls_stats_port }}/stats/{{ player }}?legacy=1
+                            </span>
                         </div>
                         <div id="stats-{{ player }}" data-player-key="{{ player }}">
                             <p>{% trans 'Loading stats...' %}</p>
@@ -104,57 +119,4 @@
 {% else %}
 <p>{% trans 'No streams found' %}</p>
 {% endif %}
-
-<script>
-async function updateStats(playerKey) {
-    const container = document.getElementById('stats-' + playerKey);
-    if (!container) return;
-    try {
-        const res = await fetch(`/sls-stats/${playerKey}/`);
-        if (!res.ok) {
-            container.innerHTML = '<p style="color: gray; font-size: 0.9em;">{% trans "Stream not active" %}</p>';
-            return;
-        }
-        const data = await res.json();
-        if (data.error) {
-            container.innerHTML = `<p style="color: orange;">{% trans "No data available" %}</p>`;
-            return;
-        }
-        const pub = data.publisher || {};
-        const bitrate = (pub.bitrate / 1000).toFixed(2);
-        const uptimeSec = pub.uptime || 0;
-        const h = Math.floor(uptimeSec / 3600);
-        const m = Math.floor((uptimeSec % 3600) / 60);
-        const s = uptimeSec % 60;
-        const uptimeStr = `${h}h ${m}m ${s}s`;
-
-        container.innerHTML = `
-            <div>
-                <div>{% trans "Bitrate" %}: ${bitrate} Mbit/s</div>
-                <div>{% trans "Buffer" %}: ${pub.buffer || 'n/a'} ms</div>
-                <div>{% trans "Dropped Packets" %}: ${pub.dropped_pkts || 'n/a'}</div>
-                <div>{% trans "Latency" %}: ${pub.latency || 'n/a'} ms</div>
-                <div>{% trans "RTT" %}: ${pub.rtt ? pub.rtt.toFixed(2) : 'n/a'} ms</div>
-                <div>{% trans "Uptime" %}: ${uptimeStr}</div>
-            </div>
-        `;
-    } catch(e) {
-        container.innerHTML = '<p style="color: gray; font-size: 0.9em;">{% trans "Stream not active" %}</p>';
-    }
-}
-
-function startAutoRefresh(players) {
-    if (!players || players.length === 0) return;
-    players.forEach(playerKey => {
-        updateStats(playerKey);
-        setInterval(() => updateStats(playerKey), 1000);
-    });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const elements = document.querySelectorAll('[data-player-key]');
-    const playerKeys = Array.from(elements).map(e => e.getAttribute('data-player-key'));
-    startAutoRefresh(playerKeys);
-});
-</script>
 {% endblock %}
