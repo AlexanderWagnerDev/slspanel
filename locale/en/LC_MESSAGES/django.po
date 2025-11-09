@@ -84,6 +84,9 @@ msgstr "RTT"
 msgid "Uptime"
 msgstr "Uptime"
 
+msgid "Add Player to Stream"
+msgstr "Add Player to Stream"
+
 msgid "Publisher Key"
 msgstr "Publisher Key"
 
