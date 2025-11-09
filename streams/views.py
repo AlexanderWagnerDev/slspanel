@@ -64,7 +64,7 @@ def index(request):
     return render(request, 'index.html', context)
 
 @login_required(login_url='streams:login')
-def slsstats(request, player_key):
+def sls_stats(request, player_key):
     try:
         url = f"http://{settings.SLS_DOMAIN_IP}:{settings.SLS_STATS_PORT}/stats/{player_key}"
         response = requests.get(url, timeout=3)
@@ -126,4 +126,5 @@ def delete_stream(request, play_key):
 @login_required(login_url='streams:login')
 def delete_player(request, play_key):
     code, res = call_api('DELETE', f'/api/stream-ids/{play_key}')
+
     return redirect('streams:index')
