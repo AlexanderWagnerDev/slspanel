@@ -49,18 +49,19 @@ def call_api(method, endpoint, data=None):
 def index(request):
     code, res = call_api('GET', '/api/stream-ids')
     entries = res.get("data") if res and isinstance(res, dict) and "data" in res else []
-    
     publisher_map = {}
     for entry in entries:
         pub = entry.get("publisher")
         player = entry.get("player")
         desc = entry.get("description", "")
+        if not pub:
+            continue
         if pub not in publisher_map:
             publisher_map[pub] = {"publisher": pub, "player": [], "description": desc}
-        if player:
-            if player not in publisher_map[pub]["player"]:
-                publisher_map[pub]["player"].append(player)
-    
+        if desc:
+            publisher_map[pub]["description"] = desc
+        if player and player not in publisher_map[pub]["player"]:
+            publisher_map[pub]["player"].append(player)
     streams = list(publisher_map.values())
     context = {
         'streams': streams,
