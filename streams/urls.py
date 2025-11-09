@@ -11,6 +11,6 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('create-stream/', views.create_stream, name='create_stream'),
     path('add-player/', views.add_player, name='add_player'),
-    path('delete-stream/<str:player_key>/', views.delete_stream, name='delete_stream'),
+    path('delete-stream/<str:publisher_key>/', views.delete_stream, name='delete_stream'),
     path('delete-player/<str:player_key>/', views.delete_player, name='delete_player'),
 ]
