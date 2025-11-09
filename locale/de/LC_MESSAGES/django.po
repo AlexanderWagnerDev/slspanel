@@ -3,8 +3,8 @@ msgstr ""
 "Language: de\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
-msgid "Streams on SLS Live Server"
-msgstr "Streams auf SLS Live Server"
+msgid "Streams on SLS-Live-Server"
+msgstr "Streams auf dem SLS-Live-Server"
 
 msgid "Logout"
 msgstr "Abmelden"
