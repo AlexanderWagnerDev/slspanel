@@ -1,53 +1,156 @@
 {% extends 'base.html' %}
 {% load i18n %}
-{% block title %}Streams{% endblock %}
+{% block title %}{% trans "Streams" %}{% endblock %}
+
 {% block content %}
 <h1>{% trans 'Streams on SLS Live Server' %}</h1>
 <a class="btn btn-outline-light mb-3" href="{% url 'streams:logout' %}">{% trans 'Logout' %}</a>
-
 <a href="{% url 'streams:create_stream' %}" class="btn btn-success mb-3">{% trans 'Create Stream' %}</a>
 
 {% if streams %}
-    <div class="accordion accordion-flush" id="streamAccordion">
+<div class="accordion accordion-flush" id="streamAccordion">
     {% for stream in streams %}
-        <div class="accordion-item bg-dark">
-            <h2 class="accordion-header" id="heading{{ forloop.counter }}">
-                <button class="accordion-button collapsed bg-dark text-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
-                    {{ stream.publisher }}
-                </button>
-            </h2>
-            <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#streamAccordion">
-                <div class="accordion-body">
-                    <h5>{% trans 'Players' %}</h5>
-                    {% if stream.player %}
-                        <ul class="list-group list-group-flush">
-                        {% for player in stream.player %}
-                            <li class="list-group-item bg-secondary bg-opacity-20 d-flex justify-content-between align-items-center">
-                                {{ player }}
-                                <form method="post" action="{% url 'streams:delete_player' player %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-danger">{% trans 'Delete' %}</button>
-                                </form>
-                            </li>
-                        {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p><em>{% trans 'No players found' %}</em></p>
-                    {% endif %}
-                    <a href="{% url 'streams:add_player' %}?stream_id={{ stream.publisher }}" class="btn btn-primary mt-3">{% trans 'Add Player' %}</a>
+    <div class="accordion-item bg-dark">
+        <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+            <button class="accordion-button collapsed bg-dark text-light" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false"
+                aria-controls="collapse{{ forloop.counter }}">
+                {{ stream.publisher }}
+            </button>
+        </h2>
+        <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse"
+            aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#streamAccordion">
+            <div class="accordion-body">
 
-                    {% if stream.publisher %}
-                    <form method="post" action="{% url 'streams:delete_stream' stream.publisher %}" class="mt-3">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">{% trans 'Delete Stream' %}</button>
-                    </form>
-                    {% endif %}
-                </div>
+                <h5>{% trans 'Stream URLs' %}</h5>
+                <ul>
+                    <li>
+                        {% trans "SRT Publish URL" %}:
+                        <input type="text" readonly
+                            value="srt://{{ sls_domain_ip }}:{{ srt_publish_port }}?streamid={{ stream.publisher }}"
+                            onclick="this.select();document.execCommand('copy');" title="{% trans 'Click to copy' %}">
+                    </li>
+                    <li>
+                        {% trans "SRTLA Publish URL" %}:
+                        <input type="text" readonly
+                            value="srtla://{{ sls_domain_ip }}:{{ srtla_publish_port }}?streamid={{ stream.publisher }}"
+                            onclick="this.select();document.execCommand('copy');" title="{% trans 'Click to copy' %}">
+                    </li>
+                    <li>
+                        {% trans "SRT Player Port (Publisher)" %}:
+                        <input type="text" readonly
+                            value="srt://{{ sls_domain_ip }}:{{ srt_player_port }}?streamid={{ stream.publisher }}"
+                            onclick="this.select();document.execCommand('copy');" title="{% trans 'Click to copy' %}">
+                    </li>
+                </ul>
+
+                <h5>{% trans 'Players' %}</h5>
+                {% if stream.player %}
+                <ul class="list-group list-group-flush">
+                    {% for player in stream.player %}
+                    <li class="list-group-item bg-secondary bg-opacity-20 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong>{{ player }}</strong>
+                            <form method="post" action="{% url 'streams:delete_player' player %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-danger">{% trans 'Delete' %}
+                                </button>
+                            </form>
+                        </div>
+                        <div class="mt-2">
+                            {% trans "Player URL" %}:
+                            <input type="text" readonly
+                                value="srt://{{ sls_domain_ip }}:{{ srt_player_port }}?streamid={{ player }}"
+                                onclick="this.select();document.execCommand('copy');" title="{% trans 'Click to copy' %}"><br>
+                            {% trans "Stats URL" %}:
+                            <input type="text" readonly
+                                value="http://{{ sls_domain_ip }}:{{ sls_stats_port }}/stats/{{ player }}"
+                                onclick="this.select();document.execCommand('copy');" title="{% trans 'Click to copy' %}">
+                            {% trans "Stats Legacy URL" %}:
+                            <input type="text" readonly
+                                value="http://{{ sls_domain_ip }}:{{ sls_stats_port }}/stats/{{ player }}?legacy=1"
+                                onclick="this.select();document.execCommand('copy');" title="{% trans 'Click to copy' %}">
+                        </div>
+                        <div id="stats-{{ player }}" data-player-key="{{ player }}">
+                            <p>{% trans 'Loading stats...' %}</p>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p><em>{% trans 'No players found' %}</em></p>
+                {% endif %}
+
+                {% if stream.publisher %}
+                <form method="post" action="{% url 'streams:delete_stream' stream.publisher %}" class="mt-3">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans 'Delete Stream' %}</button>
+                </form>
+                {% endif %}
+
+                <a href="{% url 'streams:add_player' %}?stream_id={{ stream.publisher }}"
+                    class="btn btn-primary mt-3">{% trans 'Add Player' %}</a>
+
             </div>
         </div>
-    {% endfor %}
     </div>
+    {% endfor %}
+</div>
 {% else %}
-    <p>{% trans 'No streams found' %}</p>
+<p>{% trans 'No streams found' %}</p>
 {% endif %}
+
+<script>
+async function updateStats(playerKey) {
+    const container = document.getElementById('stats-' + playerKey);
+    if (!container) return;
+
+    try {
+        const res = await fetch(`/sls-stats/${playerKey}/`);
+        if (!res.ok) {
+            container.innerHTML = '<p style="color: gray; font-size: 0.9em;">{% trans "Stream not active" %}</p>';
+            return;
+        }
+        const data = await res.json();
+        if (data.error) {
+            container.innerHTML = `<p style="color: orange;">{% trans "No data available" %}</p>`;
+            return;
+        }
+        const pub = data.publisher || {};
+        const bitrate = (pub.bitrate / 1000).toFixed(2);
+        const uptimeSec = pub.uptime || 0;
+        const h = Math.floor(uptimeSec / 3600);
+        const m = Math.floor((uptimeSec % 3600) / 60);
+        const s = uptimeSec % 60;
+        const uptimeStr = `${h}h ${m}m ${s}s`;
+
+        container.innerHTML = `
+            <div>
+                <div>{% trans "Bitrate" %}: ${bitrate} Mbit/s</div>
+                <div>{% trans "Buffer" %}: ${pub.buffer || 'n/a'} ms</div>
+                <div>{% trans "Dropped Packets" %}: ${pub.dropped_pkts || 'n/a'}</div>
+                <div>{% trans "Latency" %}: ${pub.latency || 'n/a'} ms</div>
+                <div>{% trans "RTT" %}: ${pub.rtt ? pub.rtt.toFixed(2) : 'n/a'} ms</div>
+                <div>{% trans "Uptime" %}: ${uptimeStr}</div>
+            </div>
+        `;
+    } catch(e) {
+        container.innerHTML = '<p style="color: gray; font-size: 0.9em;">{% trans "Stream not active" %}</p>';
+    }
+}
+
+function startAutoRefresh(players) {
+    if (!players || players.length === 0) return;
+    players.forEach(playerKey => {
+        updateStats(playerKey);
+        setInterval(() => updateStats(playerKey), 1000);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const elements = document.querySelectorAll('[data-player-key]');
+    const playerKeys = Array.from(elements).map(e => e.getAttribute('data-player-key'));
+    startAutoRefresh(playerKeys);
+});
+</script>
 {% endblock %}

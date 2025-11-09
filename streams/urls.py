@@ -5,6 +5,7 @@ app_name = "streams"
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('sls-stats/<str:player_key>/', views.sls_stats, name='sls_stats'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('create-stream/', views.create_stream, name='create_stream'),

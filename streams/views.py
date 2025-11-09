@@ -53,9 +53,26 @@ def index(request):
     code, streams = call_api('GET', '/api/stream-ids')
     if streams is None:
         streams = []
-    context = {'streams': streams}
+    context = {
+        'streams': streams,
+        'srt_publish_port': settings.SRT_PUBLISH_PORT,
+        'srt_player_port': settings.SRT_PLAYER_PORT,
+        'srtla_publish_port': settings.SRTLA_PUBLISH_PORT,
+        'sls_domain_ip': settings.SLS_DOMAIN_IP,
+        'sls_stats_port': settings.SLS_STATS_PORT,
+    }
     return render(request, 'index.html', context)
 
+@login_required(login_url='streams:login')
+def slsstats(request, player_key):
+    try:
+        url = f"http://{settings.SLS_DOMAIN_IP}:{settings.SLS_STATS_PORT}/stats/{player_key}"
+        response = requests.get(url, timeout=3)
+        response.raise_for_status()
+        data = response.json()
+        return JsonResponse(data)
+    except Exception as e:
+        return JsonResponse({"error": "Failed to fetch stats"}, status=500)
 
 @login_required(login_url='streams:login')
 def create_stream(request):
@@ -86,7 +103,7 @@ def add_player(request):
         stream_id = request.POST.get("stream_id")
         player_key = request.POST.get("player_key")
         if not player_key:
-            player_key = 'play_' + secrets.token_hex(8)
+            player_key = 'play_' + secrets.token_hex(16)
         description = request.POST.get("description", "")
         data = {
             "publisher": stream_id,

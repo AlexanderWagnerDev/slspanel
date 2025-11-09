@@ -3,17 +3,8 @@ msgstr ""
 "Language: de\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
-msgid "Login"
-msgstr "Anmelden"
-
-msgid "Username"
-msgstr "Benutzername"
-
-msgid "Password"
-msgstr "Passwort"
-
-msgid "Streams on SRT Live Server"
-msgstr "Streams auf dem SRT Live Server"
+msgid "Streams on SLS Live Server"
+msgstr "Streams auf SLS Live Server"
 
 msgid "Logout"
 msgstr "Abmelden"
@@ -21,14 +12,74 @@ msgstr "Abmelden"
 msgid "Create Stream"
 msgstr "Stream erstellen"
 
+msgid "Stream URLs"
+msgstr "Stream URLs"
+
+msgid "SRT Publish URL"
+msgstr "SRT Publish URL"
+
+msgid "SRTLA Publish URL"
+msgstr "SRTLA Publish URL"
+
+msgid "SRT Player Port (Publisher)"
+msgstr "SRT Player Port (Publisher)"
+
+msgid "Stream Stats"
+msgstr "Stream Statistiken"
+
+msgid "Loading stats..."
+msgstr "Statistiken werden geladen..."
+
 msgid "Players"
 msgstr "Player"
+
+msgid "Player URL"
+msgstr "Player URL"
+
+msgid "Stats URL"
+msgstr "Statistik URL"
+
+msgid "Stats Legacy URL"
+msgstr "Legacy Statistik URL"
 
 msgid "Delete"
 msgstr "Löschen"
 
-msgid "No streams found"
-msgstr "Keine Streams gefunden"
+msgid "Delete Stream"
+msgstr "Stream löschen"
+
+msgid "Add Player"
+msgstr "Player hinzufügen"
 
 msgid "No players found"
 msgstr "Keine Player gefunden"
+
+msgid "No streams found"
+msgstr "Keine Streams gefunden"
+
+msgid "Click to copy"
+msgstr "Zum Kopieren klicken"
+
+msgid "Stream not active"
+msgstr "Stream ist nicht aktiv"
+
+msgid "No data available"
+msgstr "Keine Daten verfügbar"
+
+msgid "Bitrate"
+msgstr "Bitrate"
+
+msgid "Buffer"
+msgstr "Puffer"
+
+msgid "Dropped Packets"
+msgstr "Verlorene Pakete"
+
+msgid "Latency"
+msgstr "Latenz"
+
+msgid "RTT"
+msgstr "RTT"
+
+msgid "Uptime"
+msgstr "Laufzeit"
