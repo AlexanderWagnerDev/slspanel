@@ -162,8 +162,12 @@ def add_player(request):
     })
     
 @login_required(login_url='streams:login')
-def delete_stream(request, player_key):
-    code, res = call_api('DELETE', f'/api/stream-ids/{player_key}')
+def delete_stream(request, publisher_key):
+    code, res = call_api('GET', '/api/stream-ids')
+    entries = res.get("data") if res and isinstance(res, dict) and "data" in res else []
+    player_keys = [entry["player"] for entry in entries if entry.get("publisher") == publisher_key and entry.get("player")]
+    for play_key in player_keys:
+        call_api('DELETE', f'/api/stream-ids/{play_key}')
     return redirect('streams:index')
 
 @login_required(login_url='streams:login')
