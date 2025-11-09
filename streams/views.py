@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
 from django.conf import settings
+from django.http import JsonResponse
 import requests
 import secrets
 
@@ -22,11 +23,9 @@ def login_view(request):
             error = _("Invalid credentials")
     return render(request, 'login.html', {'error': error})
 
-
 def logout_view(request):
     request.session.flush()
     return redirect('streams:login')
-
 
 def call_api(method, endpoint, data=None):
     headers = {
@@ -49,7 +48,13 @@ def call_api(method, endpoint, data=None):
 @login_required(login_url='streams:login')
 def index(request):
     code, res = call_api('GET', '/api/stream-ids')
-    streams = res.get("data") if res and "data" in res else []
+    streams = res.get("data") if res and isinstance(res, dict) and "data" in res else []
+    # Fix: Ensure 'player' field is always a list for template logic
+    for s in streams:
+        if isinstance(s.get("player"), str):
+            s["player"] = [s["player"]]
+        elif s.get("player") is None:
+            s["player"] = []
     context = {
         'streams': streams,
         'srt_publish_port': settings.SRT_PUBLISH_PORT,
@@ -63,7 +68,7 @@ def index(request):
 @login_required(login_url='streams:login')
 def sls_stats(request, player_key):
     try:
-        url = f"http://{settings.SLS_STATS_DOMAIN_IP}:{settings.SLS_STATS_PORT}/stats/{player_key}"
+        url = f"http://{settings.SLS_DOMAIN_IP}:{settings.SLS_STATS_PORT}/stats/{player_key}"
         response = requests.get(url, timeout=3)
         response.raise_for_status()
         data = response.json()
