@@ -18,6 +18,15 @@ SRTLA_PUBLISH_PORT = int(os.getenv("SRTLA_PUBLISH_PORT", 5000))
 SLS_DOMAIN_IP = os.getenv("SLS_DOMAIN_IP", "localhost")
 SLS_STATS_PORT = int(os.getenv("SLS_STATS_PORT", 8789))
 
+USE_I18N = True
+USE_L10N = True
+LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
+LANGUAGE_CODE = os.getenv("LANG", "en")
+
+LANGUAGES = [
+    ('de', 'Deutsch'),
+    ('en', 'English'),
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -74,16 +83,7 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = []
 
-LANGUAGE_CODE = os.getenv("LANG", "en")
-
-LANGUAGES = [
-    ('de', 'Deutsch'),
-    ('en', 'English'),
-]
-
 TIME_ZONE = os.getenv("TZ", "UTC")
-
-USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
