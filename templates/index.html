@@ -91,7 +91,7 @@
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">{% trans 'Delete Stream' %}</button>
                 </form>
-                <a href="{% url 'streams:add_player' %}?stream_id={{ stream.publisher }}"
+                <a href="{% url 'streams:add_player' %}?publisher_key={{ stream.publisher }}"
                     class="btn btn-primary mt-3">{% trans 'Add Player' %}</a>
             </div>
         </div>
