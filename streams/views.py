@@ -133,26 +133,31 @@ def create_stream(request):
 @login_required(login_url='streams:login')
 def add_player(request):
     if request.method == "POST":
-        publisher_key = request.POST.get("publisher_key")
-        player_key = request.POST.get("player_key")
-        if not player_key:
-            player_key = 'play_' + secrets.token_hex(16)
-        description = request.POST.get("description", "")
-        data = {
-            "publisher": publisher_key,
-            "player": player_key,
-            "description": description,
-        }
-        code, res = call_api('POST', '/api/stream-ids', data)
-        if code and 200 <= code < 300:
-            return redirect('streams:index')
+        if 'confirm' in request.POST:
+            publisher_key = request.POST.get("publisher_key")
+            player_key = request.POST.get("player_key")
+            description = request.POST.get("description")
+            data = {"publisher": publisher_key, "player": player_key, "description": description}
+            code, res = call_api('POST', '/api/stream-ids', data)
+            if code and 200 <= code < 300:
+                return redirect('streams:index')
+            else:
+                return render(request, 'add_player.html', {
+                    'error': _("API error"),
+                    'publisher_key': publisher_key,
+                    'player_key': player_key,
+                    'description': description,
+                })
         else:
+            publisher_key = request.POST.get("publisher_key")
+            player_key = request.POST.get("player_key")
+            description = request.POST.get("description", "")
             return render(request, 'add_player.html', {
-                'error': _("API error"),
                 'publisher_key': publisher_key,
                 'player_key': player_key,
                 'description': description,
             })
+
     publisher_key = request.GET.get("publisher_key", "")
     player_key = 'play_' + secrets.token_hex(16)
     return render(request, 'add_player.html', {
