@@ -150,7 +150,7 @@ def add_player(request):
                 })
         else:
             publisher_key = request.POST.get("publisher_key")
-            player_key = request.POST.get("player_key")
+            player_key = 'play_' + secrets.token_hex(16)
             description = request.POST.get("description", "")
             return render(request, 'add_player.html', {
                 'publisher_key': publisher_key,
