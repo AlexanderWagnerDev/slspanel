@@ -3,22 +3,45 @@
 {% block title %}{% trans "Create Stream" %}{% endblock %}
 
 {% block content %}
-<h1>{% trans "Create Stream" %}</h1>
-<form method="post">
-    {% csrf_token %}
-    <label for="publisher">{% trans "Publisher Key" %}</label>
-    <input type="text" name="publisher" id="publisher" value="{{ data.publisher|default:'' }}">
-    
-    <label for="player">{% trans "Player Key" %}</label>
-    <input type="text" name="player" id="player" value="{{ data.player|default:'' }}">
-
-    <label for="description">{% trans "Description" %}</label>
-    <textarea name="description" id="description">{{ data.description|default:'' }}</textarea>
-
-    {% if error %}
-    <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
-
-    <button type="submit" class="btn btn-primary">{% trans "Create" %}</button>
-</form>
+<div class="container mt-5" style="max-width: 600px;">
+    <h1 class="mb-4">{% trans "Create Stream" %}</h1>
+    <form method="post" autocomplete="off">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label for="publisher" class="form-label fw-bold">{% trans "Publisher Key" %}</label>
+            <input type="text" class="form-control form-control-lg" id="publisher" name="publisher" required autofocus>
+        </div>
+        <div class="mb-4">
+            <label for="player" class="form-label fw-bold">{% trans "Player Key" %}</label>
+            <input type="text" class="form-control form-control-lg" id="player" name="player" required>
+        </div>
+        <div class="mb-4">
+            <label for="description" class="form-label fw-bold">{% trans "Description" %}</label>
+            <input type="text" class="form-control form-control-lg" id="description" name="description">
+        </div>
+        <div class="mb-3 d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">{% trans "Create" %}</button>
+        </div>
+        {% if error %}
+        <div class="alert alert-danger mt-3">{{ error }}</div>
+        {% endif %}
+    </form>
+</div>
+<script>
+function generateKey(prefix, bytes) {
+    const arr = new Uint8Array(bytes);
+    window.crypto.getRandomValues(arr);
+    return prefix + Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+document.addEventListener('DOMContentLoaded', function(){
+    const publisherInput = document.getElementById('publisher');
+    const playerInput = document.getElementById('player');
+    if (publisherInput && !publisherInput.value) {
+        publisherInput.value = generateKey('live_', 16);
+    }
+    if (playerInput && !playerInput.value) {
+        playerInput.value = generateKey('play_', 16);
+    }
+});
+</script>
 {% endblock %}
