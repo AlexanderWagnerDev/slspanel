@@ -48,10 +48,8 @@ def call_api(method, endpoint, data=None):
 
 @login_required(login_url='streams:login')
 def index(request):
-    code, streams = call_api('GET', '/api/stream-ids')
-    streams = response.get("data") if response else []
-    if streams is None:
-        streams = []
+    code, res = call_api('GET', '/api/stream-ids')
+    streams = res.get("data") if res and "data" in res else []
     context = {
         'streams': streams,
         'srt_publish_port': settings.SRT_PUBLISH_PORT,
