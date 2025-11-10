@@ -1,14 +1,24 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
 from django.conf import settings
 from django.http import JsonResponse
+from django.shortcuts import redirect
+from functools import wraps
 import requests
 import secrets
 
 API_URL = settings.SLS_API_URL if hasattr(settings, 'SLS_API_URL') else 'http://localhost:8789'
 API_KEY = settings.SLS_API_KEY if hasattr(settings, 'SLS_API_KEY') else ''
+
+def conditional_login_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if getattr(settings, 'REQUIRE_LOGIN', True):
+            if not request.user.is_authenticated:
+                return redirect('streams:login')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 def login_view(request):
     error = None
@@ -45,7 +55,7 @@ def call_api(method, endpoint, data=None):
     except Exception as e:
         return None, str(e)
 
-@login_required(login_url='streams:login')
+@conditional_login_required
 def index(request):
     code, res = call_api('GET', '/api/stream-ids')
     entries = res.get("data") if res and isinstance(res, dict) and "data" in res else []
@@ -77,7 +87,7 @@ def index(request):
     }
     return render(request, 'index.html', context)
 
-@login_required(login_url='streams:login')
+@conditional_login_required
 def streams_status_json(request):
     code, res = call_api('GET', '/api/stream-ids')
     entries = res.get("data") if res and isinstance(res, dict) and "data" in res else []
@@ -97,7 +107,7 @@ def streams_status_json(request):
     streams = list(publisher_map.values())
     return JsonResponse({"streams": streams})
 
-@login_required(login_url='streams:login')
+@conditional_login_required
 def sls_stats(request, player_key):
     try:
         url = f"http://{settings.SLS_DOMAIN_IP}:{settings.SLS_STATS_PORT}/stats/{player_key}"
@@ -108,7 +118,7 @@ def sls_stats(request, player_key):
     except Exception as e:
         return JsonResponse({"error": "Failed to fetch stats"}, status=500)
 
-@login_required(login_url='streams:login')
+@conditional_login_required
 def create_stream(request):
     if request.method == "POST":
         publisher_key = request.POST.get("publisher")
@@ -130,7 +140,7 @@ def create_stream(request):
             return render(request, 'create_stream.html', {'error': _("API error"), 'data': data})
     return render(request, 'create_stream.html')
 
-@login_required(login_url='streams:login')
+@conditional_login_required
 def add_player(request):
     if request.method == "POST":
         if 'confirm' in request.POST:
@@ -166,7 +176,7 @@ def add_player(request):
         "description": ""
     })
     
-@login_required(login_url='streams:login')
+@conditional_login_required
 def delete_stream(request, publisher_key):
     code, res = call_api('GET', '/api/stream-ids')
     entries = res.get("data") if res and isinstance(res, dict) and "data" in res else []
@@ -175,7 +185,7 @@ def delete_stream(request, publisher_key):
         call_api('DELETE', f'/api/stream-ids/{play_key}')
     return redirect('streams:index')
 
-@login_required(login_url='streams:login')
+@conditional_login_required
 def delete_player(request, player_key):
     code, res = call_api('DELETE', f'/api/stream-ids/{player_key}')
     return redirect('streams:index')
