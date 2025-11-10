@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   slspanel:
-    image: alexanderwagnerdev/slspanel:beta
+    image: alexanderwagnerdev/slspanel:latest
     container_name: slspanel
     restart: unless-stopped
     environment:
