@@ -9,6 +9,8 @@ DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() == "true"
 
 ALLOWED_HOSTS = ["*"]
 
+REQUIRE_LOGIN = os.getenv('REQUIRE_LOGIN', 'True') == 'True'
+
 USERNAME = os.getenv('USERNAME', 'admin')
 PASSWORD = os.getenv('PASSWORD', 'password')
 
